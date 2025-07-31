@@ -1,0 +1,64 @@
+<?php
+
+// phpcs:ignoreFile
+
+use Drupal\test_tokens\Enum\Versions;
+
+function test_tokens_token_info() {
+  $types = [
+    'versions' => [
+      'name' => 'Tokens de version',
+      'description' => 'Défini des tokens custom pour les versions du projet.',
+    ],
+  ];
+
+  $tokens = [
+    'versions' => [
+      'current_version' => [
+        'name' => t('Current version'),
+        'description' => t('Current version.'),
+      ],
+      'start' => [
+        'name' => t('Start date'),
+        'description' => t('The first day of the current version.'),
+      ],
+      'end' => [
+        'name' => t('End date'),
+        'description' => t('The last day of the current version.'),
+      ],
+    ],
+  ];
+
+  return [
+    'types' => $types,
+    'tokens' => $tokens,
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function test_tokens_tokens($type, $tokens, $data, $options, $bubbleable_metadata) {
+  $replacements = array();
+
+  if ($type == 'versions') {
+    $current_version = Versions::currentVersion();
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'current_version':
+          // @phpstan-ignore-next-line
+          $replacements[$original] = $current_version->value ?? t('unknown version');
+          break;
+        case 'start':
+          $replacements[$original] = $current_version->humanReadableBeginDate();
+          break;
+        case 'end':
+          $replacements[$original] = $current_version->humanReadableEndDate();
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
