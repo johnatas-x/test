@@ -1,0 +1,5 @@
+name: 'Test : Tokens'
+type: module
+description: 'Provides custom tokens.'
+core_version_requirement: ^11
+package: Custom
